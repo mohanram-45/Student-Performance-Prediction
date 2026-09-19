@@ -1,4 +1,4 @@
-# Student Maths Score Prediction
+# Student Score Prediction
 
 A tabular regression project that estimates maths scores from reading/writing scores and five student background fields. Includes exploratory notebooks, cross-validated model selection, and a local Flask prediction form.
 
@@ -136,7 +136,7 @@ Confirm dataset attribution, assess subgroup errors and feature ablations, and e
 
 Mohan Ramamurthy
 
-MSc Data Science â€” University of Hertfordshire
+MSc Data Science, University of Hertfordshire
 
 ## License
 
