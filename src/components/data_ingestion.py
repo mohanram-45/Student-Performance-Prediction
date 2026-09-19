@@ -1,60 +1,39 @@
-import os
-import sys
-from src.exception import CustomException
-from src.logger import logging
+"""Validate the bundled data and create a deterministic train/test split."""
+import numpy as np
 import pandas as pd
-
 from sklearn.model_selection import train_test_split
-from dataclasses import dataclass
+from src.config import ARTIFACTS, DATA_PATH, TARGET, NUMERIC, CATEGORIES
 
-from src.components.data_transformation import DataTransformation
-from src.components.data_transformation import DataTransformationConfig
 
-from src.components.model_trainer import ModelTrainerConfig
-from src.components.model_trainer import ModelTrainer
-@dataclass
-class DataIngestionConfig:
-    train_data_path: str=os.path.join('artifacts',"train.csv")
-    test_data_path: str=os.path.join('artifacts',"test.csv")
-    raw_data_path: str=os.path.join('artifacts',"data.csv")
+def validate_data(data):
+    expected = set(NUMERIC) | set(CATEGORIES) | {TARGET}
+    if set(data.columns) != expected:
+        raise ValueError("Dataset columns do not match the expected schema")
+    if data.empty or data.isna().any().any() or data.duplicated().any():
+        raise ValueError("Dataset must be nonempty with no missing or duplicate rows")
+    for column in NUMERIC + [TARGET]:
+        values = pd.to_numeric(data[column], errors="raise")
+        if not np.isfinite(values).all() or not values.between(0, 100).all():
+            raise ValueError(f"{column} must contain finite scores between 0 and 100")
+    for column, allowed in CATEGORIES.items():
+        if not data[column].isin(allowed).all():
+            raise ValueError(f"Unexpected category in {column}")
+
 
 class DataIngestion:
-    def __init__(self):
-        self.ingestion_config=DataIngestionConfig()
-
     def initiate_data_ingestion(self):
-        logging.info("Entered the data ingestion method or component")
-        try:
-            df=pd.read_csv('notebook\data\stud.csv')
-            logging.info('Read the dataset as dataframe')
+        data = pd.read_csv(DATA_PATH)
+        validate_data(data)
+        train, test = train_test_split(data, test_size=0.2, random_state=42)
+        ARTIFACTS.mkdir(parents=True, exist_ok=True)
+        train_path, test_path = ARTIFACTS / "train.csv", ARTIFACTS / "test.csv"
+        train.to_csv(train_path, index=False)
+        test.to_csv(test_path, index=False)
+        return train_path, test_path
 
-            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
 
-            df.to_csv(self.ingestion_config.raw_data_path,index=False,header=True)
-
-            logging.info("Train test split initiated")
-            train_set,test_set=train_test_split(df,test_size=0.2,random_state=42)
-
-            train_set.to_csv(self.ingestion_config.train_data_path,index=False,header=True)
-
-            test_set.to_csv(self.ingestion_config.test_data_path,index=False,header=True)
-
-            logging.info("Inmgestion of the data iss completed")
-
-            return(
-                self.ingestion_config.train_data_path,
-                self.ingestion_config.test_data_path
-
-            )
-        except Exception as e:
-            raise CustomException(e,sys)
-        
-if __name__=="__main__":
-    obj=DataIngestion()
-    train_data,test_data=obj.initiate_data_ingestion()
-
-    data_transformation=DataTransformation()
-    train_arr,test_arr,_=data_transformation.initiate_data_transformation(train_data,test_data)
-
-    modeltrainer = ModelTrainer()
-    print(modeltrainer.initiate_model_trainer(train_arr, test_arr))
+if __name__ == "__main__":
+    from src.components.model_trainer import ModelTrainer
+    train_path, test_path = DataIngestion().initiate_data_ingestion()
+    print(ModelTrainer().initiate_model_trainer(
+        pd.read_csv(train_path), pd.read_csv(test_path)))

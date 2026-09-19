@@ -1,29 +1,16 @@
-import sys
+import numpy as np
 import pandas as pd
-
-from src.exception import CustomException
+from src.config import MODEL_PATH, CATEGORIES, NUMERIC
 from src.utils import load_object
 
+
 class PredictPipeline:
-    def __init__(self):
-        pass
-
     def predict(self, features):
+        if not MODEL_PATH.exists():
+            raise FileNotFoundError("Run python -m src.components.data_ingestion first")
+        pipeline = load_object(MODEL_PATH)
+        return pipeline.predict(features)
 
-        try: 
-            model_path = "artifacts\model.pkl"
-            preprocessor_path = "artifacts\proprocessor.pkl"
-            model = load_object(file_path = model_path)
-            Preprocessor = load_object(file_path = preprocessor_path)
-
-            data_scaled = Preprocessor.transform(features)
-
-            prediction = model.predict(data_scaled)
-            return prediction
-        
-        except Exception as e:
-            raise CustomException(e,sys)
-        
 
 class CustomData:
     def __init__(  self,
@@ -61,7 +48,15 @@ class CustomData:
                 "writing_score": [self.writing_score],
             }
 
-            return pd.DataFrame(custom_data_input_dict)
+            data = pd.DataFrame(custom_data_input_dict)
+            for column, allowed in CATEGORIES.items():
+                if not data[column].isin(allowed).all():
+                    raise ValueError(f"Select a valid value for {column}")
+            for column in NUMERIC:
+                data[column] = pd.to_numeric(data[column], errors="raise")
+                if not np.isfinite(data[column]).all() or not data[column].between(0, 100).all():
+                    raise ValueError(f"{column} must be between 0 and 100")
+            return data
 
-        except Exception as e:
-            raise CustomException(e, sys)
+        except (TypeError, ValueError) as error:
+            raise ValueError(str(error)) from error

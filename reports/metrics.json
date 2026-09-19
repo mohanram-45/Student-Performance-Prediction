@@ -1,0 +1,82 @@
+{
+  "selected_model": "Linear Regression",
+  "selection": "highest mean training-only 3-fold shuffled CV R2; seed 42",
+  "train_rows": 800,
+  "test_rows": 200,
+  "split_seed": 42,
+  "dataset_sha256": "b83bdf915ada97fe4e7f8ead745d530567ba052eaa8f60f670f6276bdac15367",
+  "python": "3.11.9",
+  "versions": {
+    "numpy": "2.4.6",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "catboost": "1.2.10",
+    "xgboost": "3.2.0"
+  },
+  "cross_validation": {
+    "Random Forest": {
+      "cv_r2_mean": 0.8275351821955437,
+      "cv_r2_std": 0.018413594588649527,
+      "best_params": {
+        "model__n_estimators": 256
+      }
+    },
+    "Decision Tree": {
+      "cv_r2_mean": 0.6868037881953625,
+      "cv_r2_std": 0.015318011713542492,
+      "best_params": {
+        "model__criterion": "poisson"
+      }
+    },
+    "Gradient Boosting": {
+      "cv_r2_mean": 0.8494271403757429,
+      "cv_r2_std": 0.014894389215073096,
+      "best_params": {
+        "model__learning_rate": 0.1,
+        "model__n_estimators": 64,
+        "model__subsample": 0.6
+      }
+    },
+    "Linear Regression": {
+      "cv_r2_mean": 0.8677521243256777,
+      "cv_r2_std": 0.009657414789432049,
+      "best_params": {}
+    },
+    "XGBRegressor": {
+      "cv_r2_mean": 0.8202702403068542,
+      "cv_r2_std": 0.017712956299284537,
+      "best_params": {
+        "model__learning_rate": 0.05,
+        "model__n_estimators": 64
+      }
+    },
+    "CatBoosting Regressor": {
+      "cv_r2_mean": 0.8470929877203593,
+      "cv_r2_std": 0.011163642734849379,
+      "best_params": {
+        "model__depth": 6,
+        "model__iterations": 100,
+        "model__learning_rate": 0.05
+      }
+    },
+    "AdaBoost Regressor": {
+      "cv_r2_mean": 0.8157427396650938,
+      "cv_r2_std": 0.022144711900898797,
+      "best_params": {
+        "model__learning_rate": 0.5,
+        "model__n_estimators": 256
+      }
+    }
+  },
+  "test": {
+    "r2": 0.8804332983749565,
+    "mae": 4.21476314247485,
+    "rmse": 5.393993869732841
+  },
+  "dummy_test": {
+    "r2": -0.01703929204145327,
+    "mae": 12.339850000000002,
+    "rmse": 15.731646896065904
+  },
+  "caveat": "This split was inspected in the original project; it is not a new external validation set."
+}

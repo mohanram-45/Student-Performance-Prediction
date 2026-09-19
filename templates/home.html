@@ -1,4 +1,6 @@
-<html>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Maths score prediction</title></head>
 <body>
     <div class="login">
        <h1>Student Exam Performance Indicator</h1>
@@ -93,19 +95,19 @@
         <div class="mb-3">
             <label class="form-label">Reading Score out of 100</label>
             <input class="form-control" type="number" name="reading_score"
-                placeholder="Enter your Reading score" min='0' max='100' />
+                placeholder="Enter your Reading score" min='0' max='100' step='any' required />
         </div>
         <div class="mb-3">
-            <label class="form-label">writing score Score out of 100</label>
+            <label class="form-label">Writing Score out of 100</label>
             <input class="form-control" type="number" name="writing_score"
-                placeholder="Enter your Writing Score" min='0' max='100' />
+                placeholder="Enter your Writing Score" min='0' max='100' step='any' required />
         </div>
         <div class="mb-3">
             <input class="btn btn-primary" type="submit" value="Predict your Maths Score" required />
         </div>
     </form>
-    <h2>
-       THE  prediction is {{results}}
-    </h2>
-   <body>
+    {% if results is defined %}<h2>Estimated maths score: {{ results }}</h2>{% endif %}
+    {% if error %}<p role="alert">{{ error }}</p>{% endif %}
+    <p>Educational demonstration. Estimates can fall outside 0–100 and must not be used for student assessment.</p>
+   </body>
 </html>
